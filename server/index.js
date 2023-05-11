@@ -13,7 +13,7 @@ dotenv.config();
 mongoose.connect(process.env.MONGO_URL, {useNewUrlParser:true}).then( () => {
     console.log("Connected to mongo")
 }).catch((e) => {
-    console.log(e)
+    console.log(e) 
 });
 
 //middlewares:

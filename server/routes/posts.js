@@ -1,11 +1,6 @@
 const router = require("express").Router();
 const Post = require("../models/Post");
-
-
-// router.get("/", (req, res) => {
-//     console.log("post page")
-//     res.send("post page")
-// })
+const User = require("../models/User");
 
 //create a post
 router.post("/" ,async (req,res) => {
@@ -49,8 +44,46 @@ router.delete("/:id" , async(req, res) => {
         res.status(500).json(e);
     }
 })
-//like a post
+//like dislike a post
+router.put("/:id/like", async(req, res) => {
+    try{
+        const post = await Post.findById(req.params.id);
+        if(!post.likes.includes(req.body.userId)){
+            await post.updateOne({$push : {likes:req.body.userId}});
+            res.status(200).json("The post has been liked");
+        }else{
+            await post.updateOne({$pull:{likes: req.body.userId}});
+            res.status(200).json("The post has been disliked");
+        }
+    }catch(e){
+        res.status(500).json(e);
+    }
+});
+
 //get a post
-//get user post
+router.get("/:id", async(req, res) => {
+    try{
+        const post = await Post.findById(req.params.id);
+        res.status(200).json(post);
+    }catch(e){
+        res.status(500).json(e);
+    }
+})
+//get timeline post
+router.get("/timeline/all", async(req, res) => {
+    try{
+        const currUser = await User.findById(req.body.userId);
+        const userPosts = await Post.find({userId :currUser._id});
+        const friendPosts = await Promise.all(
+            currUser.following.map(friendId => {
+                return Post.find({userId: friendId});
+            })
+        );
+        res.json(userPosts.concat(...friendPosts))
+    }catch(e){
+        res.status(500).json(e);
+    }
+})
+
 
 module.exports = router;
