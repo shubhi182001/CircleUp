@@ -54,7 +54,49 @@ router.delete("/:id", async (req, res) => {
   })
 
 //follow a user:
+  router.put("/:id/follow", async(req, res) => {
+    if(req.body.userId !== req.params.id){
+        try{
+            const user = await User.findById(req.params.id);   //khud tum
+            const currUser = await User.findById(req.body.userId);   //jisko tumhe follow karna
+            if(!user.followers.includes(req.body.userId)){
+                await user.updateOne({$push:{followers: req.body.userId}});   //jisko follow karna hai usko body m bhej do
+                await currUser.updateOne({$push:{following:req.params.id}});  //current user ki id params m jaegi
+                res.status(200).json("user has been followed");
+            }else{
+                res.status(403).json("Already followed");
+            }
+        } catch(e){
+            res.status(500).json(e);
+        }
+    }else{
+        res.status(403).json("You can't follow yourself");
+    }
+  })
+
 //unfollow a user:
+
+router.put("/:id/unfollow", async(req, res) => {
+    if(req.body.userId !== req.params.id){
+        try{
+            const user = await User.findById(req.params.id);   //khud tum
+            const currUser = await User.findById(req.body.userId);   //jisko tumhe follow karna
+            if(user.followers.includes(req.body.userId)){
+                await user.updateOne({$pull:{followers: req.body.userId}});   //jisko follow karna hai usko body m bhej do
+                await currUser.updateOne({$pull:{following:req.params.id}});  //current user ki id params m jaegi
+                res.status(200).json("user has been unfollowed");
+            }else{
+                res.status(403).json("you don't follow this user");
+            }
+        } catch(e){
+            res.status(500).json(e);
+        }
+    }else{
+        res.status(403).json("You can't unfollow yourself");
+    }
+  })
+
+
 
 
 module.exports = router;
