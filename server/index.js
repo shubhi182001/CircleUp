@@ -1,5 +1,6 @@
 const express = require("express");
 const app = express();
+
 const mongoose = require("mongoose");
 const dotenv = require('dotenv');
 const helmet = require('helmet');
@@ -15,9 +16,11 @@ const path = require("path");
 dotenv.config();
 
 const port  = process.env.PORT || 8000
+var cors = require("cors");
+app.use(cors());
 
-
-
+app.get('/', (req,res)=>{    res.send("API works");
+});
 
 
 
